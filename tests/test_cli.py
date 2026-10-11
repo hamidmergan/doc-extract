@@ -42,6 +42,21 @@ def test_many_to_folder_uses_stem(server, make_image, tmp_path):
     assert sorted(p.name for p in out.iterdir()) == ["a.md", "b.md"]
 
 
+def test_existing_output_is_not_overwritten(server, make_image):
+    img = make_image("scan.png")
+    for _ in range(3):
+        assert main([str(img), *args(server)]) == 0
+    names = sorted(p.name for p in img.parent.glob("*.md"))
+    assert names == ["scan (1).md", "scan (2).md", "scan.md"]
+
+
+def test_explicit_output_file_is_overwritten(server, make_image, tmp_path):
+    out = tmp_path / "out.md"
+    out.write_text("old")
+    assert main([str(make_image()), "-o", str(out), *args(server)]) == 0
+    assert out.read_text().startswith("text-")
+
+
 def test_stdout_and_output_conflict(server, make_image, tmp_path, capsys):
     code = main([str(make_image()), "--stdout", "-o", str(tmp_path / "x.md"), *args(server)])
     assert code == 2

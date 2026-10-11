@@ -50,7 +50,7 @@ doc-extract scan.pdf -o notes/scan.md --base-url http://localhost:11434/v1 --mod
 doc-extract a.pdf b.jpg -o output/ --base-url http://localhost:11434/v1 --model your-vision-model
 ```
 
-Use `--stdout` to print the result instead of writing files (with a `<!-- file: name -->` header when there are several files). If two inputs share the same name without extension (for example `a.pdf` and `a.jpg`), the full name is used instead (`a.pdf.md`, `a.jpg.md`). Existing `.md` files are overwritten. Errors appear on stderr. The exit code is 1 if at least one file failed.
+Use `--stdout` to print the result instead of writing files (with a `<!-- file: name -->` header when there are several files). If two inputs share the same name without extension (for example `a.pdf` and `a.jpg`), the full name is used instead (`a.pdf.md`, `a.jpg.md`). If the target already exists, a number is added (`scan (1).md`, `scan (2).md`). A file named explicitly with `-o` is overwritten. Errors appear on stderr. The exit code is 1 if at least one file failed.
 
 ### Python API
 

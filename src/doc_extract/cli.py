@@ -36,6 +36,15 @@ def _parser() -> argparse.ArgumentParser:
     return p
 
 
+def _free(path: Path) -> Path:
+    """Return path, or 'name (1).md', 'name (2).md', ... if it already exists."""
+    candidate, n = path, 1
+    while candidate.exists():
+        candidate = path.with_name(f"{path.stem} ({n}){path.suffix}")
+        n += 1
+    return candidate
+
+
 def _targets(keys: List[str], out: Optional[Path]) -> dict:
     """Map each input to its output file: <stem>.md, or <name>.md if two stems would collide."""
     stems = [Path(k).stem for k in keys]
@@ -97,7 +106,8 @@ def main(argv: Optional[List[str]] = None) -> int:
             if many:
                 print()
             continue
-        target = out if (out is not None and not many) else targets[key]
+        # an explicitly named output file is overwritten, generated names never are
+        target = out if (out is not None and not many) else _free(targets[key])
         target.write_text(result.text + "\n", encoding="utf-8")
         print(f"Wrote {target}", file=sys.stderr)
 
