@@ -15,8 +15,12 @@ If you run your own model, your documents stay on your own network. Nothing leav
 ```
 git clone https://github.com/hamidmergan/doc-extract.git
 cd doc-extract
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install .
 ```
+
+The virtual environment keeps the install separate from your system Python. Activate it again (`source venv/bin/activate`) in each new terminal before using `doc-extract`.
 
 ## Library usage
 
