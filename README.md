@@ -41,7 +41,7 @@ doc-extract scan.pdf --stdout --base-url http://localhost:11434/v1 --model your-
 
 With several files, each result gets a `<!-- file: name -->` header.
 
-Write the result to a file instead (default):
+Write the result to a file instead:
 
 ```bash
 doc-extract scan.pdf --base-url http://localhost:11434/v1 --model your-vision-model
