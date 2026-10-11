@@ -13,7 +13,7 @@ If you run your own model, your documents stay on your own network. Nothing leav
 ## Installation
 
 ```
-git clone <repo-url>
+git clone https://github.com/hamidmergan/doc-extract.git
 cd doc-extract
 pip install .
 ```
