@@ -14,7 +14,13 @@ def _parser() -> argparse.ArgumentParser:
         description="Extract text as Markdown from images and PDFs with a vision model.",
     )
     p.add_argument("files", nargs="+", help="Images or PDFs")
-    p.add_argument("-o", "--output", help="Output file (one input) or output folder (several inputs)")
+    p.add_argument(
+        "-o",
+        "--output",
+        help="Output file (one input) or output folder (several inputs). "
+        "Default: write <name>.md next to each input",
+    )
+    p.add_argument("--stdout", action="store_true", help="Print the result instead of writing files")
     p.add_argument("--base-url", help="URL of the OpenAI-compatible server, e.g. http://localhost:11434/v1")
     p.add_argument("--model", help="Name of the vision model")
     p.add_argument("--api-key", help="API key, if the server requires one")
@@ -30,10 +36,26 @@ def _parser() -> argparse.ArgumentParser:
     return p
 
 
+def _targets(keys: List[str], out: Optional[Path]) -> dict:
+    """Map each input to its output file: <stem>.md, or <name>.md if two stems would collide."""
+    stems = [Path(k).stem for k in keys]
+    unique = len(set(stems)) == len(stems)
+    targets = {}
+    for key in keys:
+        path = Path(key)
+        name = (path.stem if unique else path.name) + ".md"
+        targets[key] = (out / name) if out is not None else path.with_name(name)
+    return targets
+
+
 def main(argv: Optional[List[str]] = None) -> int:
     args = _parser().parse_args(argv)
     many = len(args.files) > 1
     out = Path(args.output) if args.output else None
+
+    if args.stdout and out is not None:
+        print("--stdout and -o cannot be combined.", file=sys.stderr)
+        return 2
 
     if many and out is not None and out.exists() and not out.is_dir():
         print("With several files, -o must be a folder.", file=sys.stderr)
@@ -59,6 +81,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     failed = 0
+    targets = _targets(list(results), out if many else None)
     if many and out is not None:
         out.mkdir(parents=True, exist_ok=True)
 
@@ -67,18 +90,16 @@ def main(argv: Optional[List[str]] = None) -> int:
             failed += 1
             print(f"Error for {key}: {result.error}", file=sys.stderr)
             continue
-        if out is None:
+        if args.stdout:
             if many:
                 print(f"<!-- file: {Path(key).name} -->")
             print(result.text)
             if many:
                 print()
-        elif many:
-            # full file name including extension, so a.pdf and a.jpg do not overwrite each other
-            target = out / (Path(key).name + ".md")
-            target.write_text(result.text + "\n", encoding="utf-8")
-        else:
-            out.write_text(result.text + "\n", encoding="utf-8")
+            continue
+        target = out if (out is not None and not many) else targets[key]
+        target.write_text(result.text + "\n", encoding="utf-8")
+        print(f"Wrote {target}", file=sys.stderr)
 
     return 1 if failed else 0
 

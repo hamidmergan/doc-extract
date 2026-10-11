@@ -6,7 +6,7 @@ def args(server, *more):
 
 
 def test_single_to_stdout(server, make_image, capsys):
-    assert main([str(make_image()), *args(server)]) == 0
+    assert main([str(make_image()), "--stdout", *args(server)]) == 0
     assert capsys.readouterr().out.startswith("text-")
 
 
@@ -23,9 +23,33 @@ def test_many_to_folder_no_collision(server, make_image, tmp_path):
     assert sorted(p.name for p in out.iterdir()) == ["a.jpg.md", "a.png.md"]
 
 
-def test_many_stdout_headers(server, make_image, capsys):
+def test_default_writes_next_to_input(server, make_image):
+    img = make_image("scan.png")
+    assert main([str(img), *args(server)]) == 0
+    assert img.with_name("scan.md").read_text().startswith("text-")
+
+
+def test_default_many_next_to_inputs(server, make_image):
     a, b = make_image("a.png"), make_image("b.png")
     assert main([str(a), str(b), *args(server)]) == 0
+    assert a.with_name("a.md").exists() and b.with_name("b.md").exists()
+
+
+def test_many_to_folder_uses_stem(server, make_image, tmp_path):
+    a, b = make_image("a.png"), make_image("b.png")
+    out = tmp_path / "out"
+    assert main([str(a), str(b), "-o", str(out), *args(server)]) == 0
+    assert sorted(p.name for p in out.iterdir()) == ["a.md", "b.md"]
+
+
+def test_stdout_and_output_conflict(server, make_image, tmp_path, capsys):
+    code = main([str(make_image()), "--stdout", "-o", str(tmp_path / "x.md"), *args(server)])
+    assert code == 2
+
+
+def test_many_stdout_headers(server, make_image, capsys):
+    a, b = make_image("a.png"), make_image("b.png")
+    assert main([str(a), str(b), "--stdout", *args(server)]) == 0
     out = capsys.readouterr().out
     assert out.index("<!-- file: a.png -->") < out.index("<!-- file: b.png -->")
 
@@ -37,7 +61,7 @@ def test_failure_exit_code_and_rest_written(server, make_image, tmp_path, capsys
     out = tmp_path / "out"
     code = main([str(bad), str(good), "-o", str(out), *args(server)])
     assert code == 1
-    assert (out / "g.png.md").exists() and not (out / "bad.png.md").exists()
+    assert (out / "g.md").exists() and not (out / "bad.md").exists()
     assert "bad.png" in capsys.readouterr().err
 
 

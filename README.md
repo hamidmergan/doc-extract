@@ -37,19 +37,20 @@ pip install .
 doc-extract scan.pdf --base-url http://localhost:11434/v1 --model your-vision-model
 ```
 
-Or use `-o` to specify the output file:
+This writes `scan.md` next to `scan.pdf`. Several files work the same way:
 
 ```bash
-doc-extract scan.pdf -o scan.md
+doc-extract a.pdf b.jpg --base-url http://localhost:11434/v1 --model your-vision-model
 ```
 
-With several files, `-o` must be a folder. It receives one file per input, named with the full input name plus `.md`, for example `a.pdf.md` and `b.jpg.md`:
+Use `-o` to choose the output. For one file it is a file, for several files it is a folder:
 
 ```bash
-doc-extract a.pdf b.jpg -o output/
+doc-extract scan.pdf -o notes/scan.md --base-url http://localhost:11434/v1 --model your-vision-model
+doc-extract a.pdf b.jpg -o output/ --base-url http://localhost:11434/v1 --model your-vision-model
 ```
 
-Without `-o`, everything goes to stdout, with a `<!-- file: name -->` header when there are several files. Errors appear on stderr. The exit code is 1 if at least one file failed.
+Use `--stdout` to print the result instead of writing files (with a `<!-- file: name -->` header when there are several files). If two inputs share the same name without extension (for example `a.pdf` and `a.jpg`), the full name is used instead (`a.pdf.md`, `a.jpg.md`). Existing `.md` files are overwritten. Errors appear on stderr. The exit code is 1 if at least one file failed.
 
 ### Python API
 
