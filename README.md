@@ -18,7 +18,7 @@ If you run your own model, your documents stay on your own network. Nothing leav
 ## Installation
 
 ```bash
-pip install git+https://github.com/hamidmergan/doc-extract.git
+pip install doc-extract-llm
 ```
 
 Alternatively, you can install it from the source:

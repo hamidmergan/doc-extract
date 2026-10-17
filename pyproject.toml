@@ -1,15 +1,32 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "doc-extract"
+name = "doc-extract-llm"
 version = "0.1.0"
 description = "Extract text as Markdown from scans, images and PDFs with a vision model"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Hamid Mergan" }]
+keywords = ["ocr", "pdf", "markdown", "vision", "llm", "ollama", "openai", "document-extraction"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Text Processing",
+    "Typing :: Typed",
+]
 dependencies = [
     "openai>=1.30",
     "pypdfium2>=4.30",
@@ -18,12 +35,22 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=7"]
+dev = ["pytest>=7", "build", "twine"]
+
+[project.urls]
+Homepage = "https://github.com/hamidmergan/doc-extract"
+Source = "https://github.com/hamidmergan/doc-extract"
+Issues = "https://github.com/hamidmergan/doc-extract/issues"
+Changelog = "https://github.com/hamidmergan/doc-extract/blob/main/CHANGELOG.md"
 
 [project.scripts]
 doc-extract = "doc_extract.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+doc_extract = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
